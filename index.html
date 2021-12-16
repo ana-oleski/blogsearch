@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type='text/javascript' src='jquery.swiftype.autocomplete.js'></script>
+    <link type='text/css' rel='stylesheet' href='autocomplete.css' media='all' />
+    <script type='text/javascript' src='jquery.swiftype.search.js'></script>
+    <link type='text/css' rel='stylesheet' href='search.css' media='all' />
+    <link type='text/css' rel='stylesheet' href='custom.css'/>
+    <script type='text/javascript'>
+        var customRenderFunction = function(document_type, item) {
+            var out = '<a href="' + item['url'] + '" class="st-search-result-link">' + item['title'] + '</a>';
+            return out.concat('<p class="tag">' + item['teaserText'] + '</p>');
+        };
+
+        $(function() {
+            $('#st-search-input').swiftype({
+                 filters: { 'page': { 'language': 'en','pageType':'blog'} },
+                searchFields: { 'page': ['tag'] },
+                engineKey: 'bvZLwk_nzZorxJ7_zWf2'
+            });
+        });
+        $(function() {
+            $('#st-search-input').swiftypeSearch({
+                renderFunction: customRenderFunction,
+                resultContainingElement: '#st-results-container',
+                fetchFields: {'page': ['title','url','tag','teaserText']},
+                searchFields: {'page': ['tag']},
+                filters: { 'page': { 'language': 'en','pageType':'blog'} },
+                engineKey: 'bvZLwk_nzZorxJ7_zWf2'
+            });
+        });
+    </script>
+</head>
+<body>
+<main class="container">
+
+    <form>
+
+       <input type='text' id='st-search-input' class='st-search-input'"/>
+
+        <datalist id="tag-list">
+            <option value="Germany">
+            <option value="France">
+        </datalist>
+        <div id="st-results-container" class="st-result-listing"></div>
+    </form>
+
+
+</main>
+
+</body>
+</html>
