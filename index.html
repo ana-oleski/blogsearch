@@ -18,8 +18,13 @@
             return '<p class="title">' + Swiftype.htmlEscape(item['tag']) + '</p>';
         };
         $(function() {
-            $('#st-search-input').swiftype({
+            var input; // Save a reference to the autocomplete dropdown
+            input =
+                $('#st-search-input').swiftype({
                 renderFunction: autoCompleteRenderFunction,
+                    onComplete: function(selectedItem) {
+                        input.val(selectedItem['tag']); // Update the autocomplete dropdown's value
+                    },
                  filters: { 'page': { 'language': 'en', 'pageType':'blog'} },
                 fetchFields: {'page': ['title','url','tag']},
                 searchFields: { 'page': ['tag'] },
