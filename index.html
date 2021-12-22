@@ -3,41 +3,61 @@
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type='text/javascript' src='jquery.swiftype.autocomplete.js'></script>
-    <link type='text/css' rel='stylesheet' href='autocomplete.css' media='all' />
+    <link type='text/css' rel='stylesheet' href='autocomplete.css' media='all'/>
     <script type='text/javascript' src='jquery.swiftype.search.js'></script>
-    <link type='text/css' rel='stylesheet' href='search.css' media='all' />
+    <link type='text/css' rel='stylesheet' href='search.css' media='all'/>
     <link type='text/css' rel='stylesheet' href='custom.css'/>
     <script type='text/javascript'>
-        var customRenderFunction = function(document_type, item) {
+        var customRenderFunction = function (document_type, item) {
             var out = '<a href="' + item['url'] + '" class="st-search-result-link">' + item['title'] + '</a>';
             return out.concat('<p class="tag">' + item['teaserText'] + '</p>');
         };
 
-        var autoCompleteRenderFunction = function(document_type, item) {
-            console.log(item);
-            return '<p class="title">' + Swiftype.htmlEscape(item['tag']) + '</p>';
+        var extractTag = function (item) {
+            return Swiftype.htmlEscape(item['highlight']['tag'].replace("<em>", "").replace("</em>", ""));
+        }
+
+        var resultRenderFunction = function (ctx, results) {
+            var $list = ctx.list,
+                config = ctx.config;
+            const existingTags = new Set();
+            $.each(results, function (document_type, items) {
+                $.each(items, function (idx, item) {
+                    if (!existingTags.has(item['highlight']['tag'])) {
+                        ctx.registerResult($('<li>' + config.renderFunction(document_type, item, idx) + '</li>').appendTo($list), item);
+                        existingTags.add(item['highlight']['tag'])
+                    }
+
+                });
+            });
         };
-        $(function() {
+
+        var autoCompleteRenderFunction = function (document_type, item) {
+
+            return '<p class="title">' + extractTag(item) + '</p>';
+        };
+        $(function () {
             var input; // Save a reference to the autocomplete dropdown
             input =
                 $('#st-search-input').swiftype({
-                renderFunction: autoCompleteRenderFunction,
-                    onComplete: function(selectedItem) {
-                        input.val(selectedItem['tag']); // Update the autocomplete dropdown's value
+                    renderFunction: autoCompleteRenderFunction,
+                    onComplete: function (selectedItem) {
+                        input.val(extractTag(selectedItem)); // Update the autocomplete dropdown's value
                     },
-                 filters: { 'page': { 'language': 'en', 'pageType':'blog'} },
-                fetchFields: {'page': ['title','url','tag']},
-                searchFields: { 'page': ['tag'] },
-                engineKey: 'bvZLwk_nzZorxJ7_zWf2'
-            });
+                    resultRenderFunction: resultRenderFunction,
+                    filters: {'page': {'language': 'en', 'pageType': 'blog'}},
+                    fetchFields: {'page': ['title', 'url', 'tag', 'tagEnum']},
+                    searchFields: {'page': ['tag']},
+                    engineKey: 'bvZLwk_nzZorxJ7_zWf2'
+                });
         });
-        $(function() {
+        $(function () {
             $('#st-search-input').swiftypeSearch({
                 renderFunction: customRenderFunction,
                 resultContainingElement: '#st-results-container',
-                fetchFields: {'page': ['title','url','tag','teaserText']},
+                fetchFields: {'page': ['title', 'url', 'tag', 'teaserText']},
                 searchFields: {'page': ['tag']},
-                filters: { 'page': { 'language': 'en'} },
+                filters: {'page': {'language': 'en'}},
                 engineKey: 'bvZLwk_nzZorxJ7_zWf2'
             });
         });
@@ -48,7 +68,7 @@
 
     <form>
 
-       <input type='text' id='st-search-input' class='st-search-input'"/>
+        <input type='text' id='st-search-input' class='st-search-input'"/>
 
         <datalist id="tag-list">
             <option value="Germany">
